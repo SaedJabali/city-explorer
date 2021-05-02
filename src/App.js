@@ -1,25 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import axios from 'axios';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
+export class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedLocation: '',
+      data: '',
+      show: false
+    };
+  }
+
+  getLocation = async (e) => {
+    e.preventDefault();
+    const url = `https://us1.locationiq.com/v1/search.php?key=pk.d36871f015649f915282f374cff76628&q=${this.state.selectedLocation}&format=json`;
+
+    let select = await axios.get(url);
+    this.setState({
+      data: select.data[0],
+      show: true
+    })
+  };
+
+  updateselectedLocation = (e) => {
+    this.setState({ selectedLocation: e.target.value });
+    console.log(this.state.selectedLocation);
+  }
+
+  render() {
+    return (
+      <div>
+        <h1 style={{textAlign:'center'}}>City Explorer</h1>
+         <Form style={{textAlign:'center'}} onSubmit={this.getLocation}>
+          <Form.Group controlId="formBasicText">
+            <Form.Label>Find City</Form.Label>
+            <br/>
+            <Form.Control style={{width:'300px'}} onChange={this.updateselectedLocation} type="Text" placeholder="Enter City" />
+          </Form.Group>
+          <Button style={{color:'white',backgroundColor:'black',width:'150px'}} variant="primary" type="submit">
+            Search
+  </Button>
+        </Form  >
+         <p style={{textAlign:'center'}}>
+          {this.state.data.display_name}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+        <br />
+        {(this.state.show )?
+         <img style={{width:'35%',paddingLeft:'35%'}} src={`https://maps.locationiq.com/v3/staticmap?key=pk.d36871f015649f915282f374cff76628&q&center=${this.state.data.lat},${this.state.data.lon}&zoom=11`}  alt='' /> :null}
+      </div>
+    )
+  }
 }
 
-export default App;
+export default App
